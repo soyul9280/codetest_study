@@ -24,7 +24,7 @@ public class PerfectCrime {
 
       dp[0][0] = 0; //아직 아무것도 안훔침
 
-    for (int i = 0; i <= size; i++) {
+    for (int i = 1; i <= size; i++) {
       int a = info[i - 1][0]; // a흔적 수
       int b = info[i - 1][1]; //b 흔적수
 
