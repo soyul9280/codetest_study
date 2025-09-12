@@ -18,15 +18,14 @@ class Solution {
             }
             // 특정 시간대 유저 수 확인
             int userCount = players[time];
+            int need = userCount / m;
         
             // 서버가 유저를 감당 할 수 없다면 감당할 수 있는 서버 개수로 증설한다.
-            if (userCount >= m && userCount >= currentServerCount * 2 * m) {
-                int requiredServerCount = (userCount / m) - currentServerCount;
+            if (currentServerCount < need) {
+                int requiredServerCount = need - currentServerCount;
                 currentServerCount += requiredServerCount;
                 increaseServerCount += requiredServerCount;
-                servers.put(time, requiredServerCount);
-                System.out.println("증설 시간 : " + time + ", 필요 서버 개수 : " + requiredServerCount + ", 총 증설 개수 : " + increaseServerCount);
-                
+                servers.put(time, requiredServerCount);               
             }
 
         }
