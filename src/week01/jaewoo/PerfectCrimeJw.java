@@ -1,34 +1,25 @@
+import java.util.*;
+
 class Solution {
-public int solution(int[][] info, int n, int m) {
-        int ATotal = 0;
-        int BTotal = 0;
+    private static final int INF = 121;
+    
+    public int solution(int[][] info, int n, int m) {
+        int[][] dp = new int[info.length + 1][m];
+        Arrays.stream(dp)
+            .forEach(each -> Arrays.fill(each, INF));
         
-        Arrays.sort(info, (costA, costB) -> {
-          // B 배열 수의 차
-          int sub = costB[1] - costA[1];
-          if (sub == 0) {
-              return costA[0] - costB[0];
-          }
-          return sub;
-        });
-        
-        for (int[] leftOver : info) {
-            int thiefA = leftOver[0];
-            int thiefB = leftOver[1];
-            // 일단 B가 최대한 훔쳐야 됨.
-            if (BTotal + thiefB < m) {
-                BTotal += thiefB;
-                continue;
-            }
+        dp[0][0] = 0; // thiefB가 훔친 개수는 현재 0이고, A의 값도 0으로 초기화
+        for (int round = 1; rount <= info.size; round++) {
+            int theifA = info[round-1][0];
+            int theifB = info[round-1][1];
             
-            // 만약 잡힐 수 밖에 없다면 -1 리턴
-            if (ATotal + thiefA >= n) {
-                return -1;
+            for (int j = 0; j < m; j++) {
+                // A가 훔쳤을 떄
+                
+                // B가 훔쳤을 때
+                
             }
-            
-            ATotal += thiefA;
-        }        
-        
-        return ATotal;
+        }
+        return 0;
     }
 }
