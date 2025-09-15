@@ -51,17 +51,20 @@ class Solution {
                 if (mark[i][j] == 0) continue;
                 
                 boolean accessible = false;
-                // 상화좌우 검사해서 출고
-                for (int d = 0; d < 4; d++) {
-                    int ni = i + dx[d];
-                    int nj = j + dy[d];
-                    if (i == 0 || j == 0 || i == storage.length - 1 || j == storage[0].length - 1) {
-                        accessible = true;
-                    } else if(isInBounds(ni, nj) && mark[ni][nj] == 0) {
-                        accessible = true;
-                        break;
+                
+                if (i == 0 || j == 0 || i == storage.length - 1 || j == storage[0].length - 1) {
+                    accessible = true;
+                } else {
+                    for (int d = 0; d < 4; d++) {
+                        int ni = i + dx[d];
+                        int nj = j + dy[d];
+                        if (isInBounds(ni, nj) && mark[ni][nj] == 0) {
+                            accessible = true;
+                            break;
+                        }
                     }
                 }
+
                 if (accessible) {
                     mark[i][j] = 0;
                 }
