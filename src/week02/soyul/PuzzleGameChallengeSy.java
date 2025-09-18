@@ -16,45 +16,53 @@ package week02.soyul;
  */
 public class PuzzleGameChallengeSy {
 
+
   public int solution(int[] diffs, int[] times, long limit) {
-    int diff;
-    int time_cur;
-    int time_prev;
-    int[] time=new int[diffs.length];//한번 퍼즐푸는데 걸린 시간
-    int total_time[] = new int[times.length];
-    int level=0;
+    int low = 0;
+    int high = 0;
+    int level = low;
 
+    int[] time = new int[diffs.length];//한번 퍼즐푸는데 걸린 시간
+
+    //퍼즐 난이도 중 가장 큰값 넣기.(반복문보다 Math.max를 이용하자)
     for (int i = 0; i < diffs.length; i++) {
-      level = diffs[i];
-      for (int k = 0; k < diffs.length; k++) {
-        diff = diffs[k];//현재난이도
-        time_cur = times[k];//현재시간
-        time_prev = times[k-1];//이전시간
-        if (level >= diff) {
-          time[k]=time_cur;
-        } else {
-          int count = diff-level;
-          time[k]= (time_cur + time_prev) * count + time_cur;
-        }
-        for (int j = 0; j < time.length; j++) {
-          total_time[i] += time[j];
-        }
-      }
-
+     high = Math.max(high, diffs[i]);
     }
 
-    int low =0;
-    int high = diffs.length-1;
-    for (int i = 0; i <= high; i++) {
-      int small = 0;
-      if(total_time[i]>limit){
-        continue;
-      }
-      if(total_time[i]<=limit && small > total_time[i]){
-        small = total_time[i];
-        level = diffs[i];
+    //이분탐색 시작->while low high패턴
+    while (low <= high) {
+      int mid = (low + high) / 2;
+      //중간레벨로 풀수있는지 확인
+      if (canSolve(mid, diffs, times, limit)) {
+        //더 낮은 레벨도 가능한지-왼쪽이동
+        level = mid;
+        high = mid - 1;
+      } else {
+        //불가능하면 레벨 높임-오른쪽이동
+        low = mid + 1;
       }
     }
     return level;
   }
+
+//제한시간에 풀수있는지 확인용
+  private boolean canSolve(int mid, int[] diffs, int[] times, long limit) {
+    long total_time = 0;
+    for (int i = 0; i < diffs.length; i++) {
+        if (diffs[i] <= mid) {
+          total_time += times[i];
+        } else {
+          if (i == 0) {
+            //이전 퍼즐 없으니까 false
+            return false;
+          }
+          total_time += (long) (diffs[i] - mid) * (times[i - 1] + times[i]) + times[i];
+        }
+      if (total_time > limit) {
+        return false;
+      }
+    }
+      return total_time <= limit;
+  }
 }
+
