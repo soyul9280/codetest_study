@@ -1,6 +1,9 @@
 package week02.soyul;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * (r,c): n개 포인트, 1~n 다른 번호
@@ -13,132 +16,60 @@ import java.util.Arrays;
  * 입력: points=n개좌표 routes=로봇경로
  */
 public class ConflictDangerFindSy {
-  int[][] historyX;
-  int[][] historyY;
   public int solution(int[][] points, int[][] routes) {
     int answer = 0;
-    int maxRoad=0;
     //로봇 개수
     int m = routes.length;
-    int x1=0;
-    int y1=0;
-    int x2=0;
-    int y2=0;
-
-    //TODO: 방문한 좌표 길이 어떻게 정하지 = 이동결로 모두 합치기
-    //routes에서 시작과 끝점 추출 -> 시작점과 끝점의 x,y좌표를 각각 꺼내기.
-    for (int i = 0; i < m; i++) {
-      int start = routes[i][0];
-      int end = routes[i][1];
-      x1 = points[start-1][0];
-      y1 = points[start-1][1];
-      x2 = points[end-1][0];
-      y2 = points[end-1][1];
-      int absX = Math.abs(x1 - x2);
-      int absY = Math.abs(y1 - y2);
-      int road = absY + absX;
-      maxRoad = Math.max(maxRoad,road);
-    }
-
-    historyX = new int[m][maxRoad];
-    historyY = new int[m][maxRoad];
+    //로봇마다 시간별 위치 저장 리스트 history.get(i).get(i) = i번 로봇이 t초에 있는 좌표
+    //필요한 만큼 메모리 동적 확장 - 노드 수 많을 때 유리, 간선 위주 dfs bfs
+    List<List<int[]>> history = new ArrayList<>();
+    //가장 오래 움직이는 로봇 총 시간
+    int maxTime = 0;
 
     for (int i = 0; i < m; i++) {
-      int start = routes[i][0];
-      int end = routes[i][1];
-      x1 = points[start-1][0];
-      y1 = points[start-1][1];
-      x2 = points[end-1][0];
-      y2 = points[end-1][1];
-      //처음에 x좌표가 같다면 y차이만큼 이동 -> 기록
-      //history[로봇번호][경로순서]
-      if(x1 == x2){
-        if(y1 < y2){
-          for (int j = 0; j < y2-y1; j++) {
-            historyX[i][j]=x1;
-            historyY[i][j]=y1++;
-          }
-          System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
+      //i번째 로봇 경로 저장
+     List<int[]> path = new ArrayList<>();
+     //시작포인트
+     int[] start= points[routes[i][0]-1];
+     path.add(new int[]{start[0],start[1]});
+     // 이전 다음 포인트 이동 준비
+      for (int j = 1; j < routes[i].length; j++) {
+        int[] prev = points[routes[i][j-1]-1];
+        int[] next = points[routes[i][j]-1];
+        int curX = prev[0];
+        int curY = prev[1];
+        //r행부터 맞추기
+        while (curX != next[0]) {
+          curX +=(curX<next[0])?1:-1;
+          path.add(new int[]{curX,curY});
         }
-        else if(y1 > y2){
-          for (int j = 0; j < y1-y2; j++) {
-            historyX[i][j]=x1;
-            historyY[i][j]=y1--;
-          }
-          System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
+        while(curY != next[1]){
+          curY +=(curY<next[1])?1:-1;
+          path.add(new int[]{curX,curY});
         }
       }
-      //처음에 y좌표가 같을 때
-      else if(y1 == y2){
-        if(x1 < x2){
-          for (int j = 0; j < x2-x1; j++) {
-            historyX[i][j]=x1++;
-            historyY[i][j]=y1;
-          }
-          System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
-        }
-        else if(x1 > x2){
-          for (int j = 0; j < x1-x2; j++) {
-            historyX[i][j]=x1--;
-            historyY[i][j]=y1;
-          }
-          System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
-        }
-      }
-      //처음에 아무것도 같지 않을때
-      else{
-        //y좌표가 같아질때까지 이동
-        if(y1 < y2){
-          for (int j = 0; j < y2-y1; j++) {
-            historyY[i][j]=y1++;
-            historyX[i][j]=x1;
-          }
-          System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
-          //y좌표 맞춘 후 x좌표 맞추기
-          if(x1 < x2){
-            for (int j = y2-y1; j < x2-x1; j++) {
-              historyX[i][j]=x1++;
-              historyY[i][j]=y2;
-            }
-            System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
-          }
-          if(x1 > x2){
-            for (int j = y2-y1; j < x1-x2; j++) {
-              historyX[i][j]=x1--;
-              historyY[i][j]=y2;
-            }
-            System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
-          }
-        }else if(y1 > y2){
-          for (int j = 0; j < y1-y2; j++) {
-            historyY[i][j]=y1--;
-            historyX[i][j]=x1;
-          }
-          System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
-          //y좌표 맞춘 후 x좌표 맞추기
-          if(x1 < x2){
-            for (int j = y1-y2; j < x2-x1; j++) {
-              historyX[i][j]=x1++;
-              historyY[i][j]=y1;
-            }
-            System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
-          }
-          if(x1 > x2){
-            for (int j = y1-y2; j < x1-x2; j++) {
-              historyX[i][j]=x1--;
-              historyY[i][j]=y1;
-            }
-            System.out.println("x:"+ Arrays.toString(historyX[i])+" y:"+Arrays.toString(historyY[i]));
-          }
-        }
-      }
+      //전체 경로 저장
+      history.add(path);
+      //가장 긴 시간 갱신 - 모든 로봇 같은 시간축 비교
+      maxTime = Math.max(maxTime,path.size());
     }
-    for (int i = 0; i < maxRoad; i++) {
-      for (int j = 0; j < m; j++) {
-        for (int k = j+1; k < m; k++) {
-          if(historyX[j][i]==historyX[k][i]&&historyY[j][i]==historyY[k][i]){
-            answer++;
-          }
+    //t 시간에 몇대 충돌했는지 확인
+    for (int t = 0; t < maxTime; t++) {
+      //t초에 그 위치에 있는 로봇수 세기
+      Map<String,Integer> counter = new HashMap<>();
+      for (int i = 0; i < m; i++) {
+        List<int[]> path = history.get(i);
+        if (t < path.size()) {//아직 로봇 움직이는 중
+          int[] pos = path.get(t);//t초 좌표
+          String key = pos[0]+","+pos[1];//r,c가 키
+          //이미 그 좌표에 로봇이 있으면 그 로봇 수 가져오고 없으면 0+1
+          counter.put(key,counter.getOrDefault(key,0)+1);
+        }
+      }
+      //충돌하면 !
+      for (Integer cnt : counter.values()) {
+        if (cnt >= 2) {
+          answer++;
         }
       }
     }
