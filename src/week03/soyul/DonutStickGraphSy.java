@@ -21,6 +21,7 @@ public class DonutStickGraphSy {
      * map.getOrDefault(d,n) :  map에서 key가 d인 value를 리턴하는데 만약 d가 없으면 n 리턴
      */
     for(int [] e : edges){
+      //(그 정점의 나가는 간선 수,없으면 0)+1
       out.put(e[0],out.getOrDefault(e[0],0) + 1);
       in.put(e[1],in.getOrDefault(e[1],0) + 1);
     }
@@ -36,7 +37,8 @@ public class DonutStickGraphSy {
     for(int node : in.keySet()){
       if(!out.containsKey(node)) bar++;
     }
-    /* 추가 생성 정점의 간선 개수는 도넛, 막대, 8자 그래프 수의 합과 같음 */
+    /* 추가 생성 정점의 간선 개수는 도넛, 막대, 8자 그래프 수의 합과 같음
+    * 도넛 개수 = (newNode의 out-degree) - bar - eight. */
     donut = out.get(newNode) - bar - eight;
 
     int[] answer = {newNode,donut,bar,eight};
