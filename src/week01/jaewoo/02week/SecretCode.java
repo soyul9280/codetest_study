@@ -1,96 +1,49 @@
 import java.util.*;
 
 class Solution {
-    int n;
-    int m;
-    char[][] inventory;
-    boolean[][] existed;
-    int[] dx = {0, 0, -1, 1};
-    int[] dy = {-1, 1, 0, 0};
     
-    int totalCount;
+    private static final int SIZE = 5;
+    private int count = 0;
     
-    public int solution(String[] storage, String[] requests) {
-        n = storage.length;
-        m = storage[0].length();
-        totalCount = n * m;
-        
-        inventory = new char[n][m];
-        existed = new boolean[n][m];
-        
-        init(storage);
-        
-        for (String req : requests) {
-            char target = req.charAt(0);
-            if (req.length() == 1) {
-                // 지게차
-                extractByCar(target);
-            } else {
-                // 크레인
-                extractByCraine(target);
-            }
-        }
-        
-        return totalCount;
+    public int solution(int n, int[][] q, int[] ans) {
+        backtrack(new ArrayList<>(), 1, n, q, ans);
+        return count;
     }
     
-    private void init(String[] storage) {
-        for (int i = 0; i < n; i++) {
-            inventory[i] = storage[i].toCharArray();
-            Arrays.fill(existed[i], true);
+    private void backtrack(List<Integer> current, int start, int n, int[][] q, int[] ans) {
+        if (current.size() == SIZE) {
+            if (isAvailable(current, q, ans)) {
+                count++;
+            }
+            return;
+        }
+        
+        for (int i = start; i <= n; i++) {
+            current.add(i);
+            backtrack(current, i + 1, n, q, ans);
+            current.remove(current.size() -1);
         }
     }
     
-    private void extractByCar(char target) {
-        boolean[][] isAccessible = calcAccessible();
-        for (boolean[] a : isAccessible) {
-            System.out.print(Arrays.toString(a));
-            System.out.println();
-        }
-        
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (target == inventory[i][j] && existed[i][j] && isAccessible[i][j]) {
-                    System.out.println(target + " 컨테이너 제거" + i + " " + j + " ");
-                    totalCount--;
-                    existed[i][j] = false;
+    private boolean isAvailable(List<Integer> candidate, int[][]q, int[] ans) {
+        for (int i = 0; i < q.length; i++) {
+            int overlap = 0;
+            for (int x : q[i]) {
+                if (candidate.contains(x)) {
+                    overlap++;
                 }
             }
-        }
-    }
-    
-    private boolean[][] calcAccessible() {
-        boolean[][] accessible = new boolean[n][m];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (i == 0 || j == 0 || i == n -1 || j == m -1) {
-                    accessible[i][j] = true;
-                    continue;
-                }
-                
-                boolean isAccessible = false;
-                for (int d = 0; d < 4; d++) {
-                    int nx = i + dx[d];
-                    int ny = j + dy[d];
-                    
-                    if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;
-                    if (!existed[nx][ny]) isAccessible = true;
-                }
-                accessible[i][j] = isAccessible;
+            if (overlap != ans[i]) {
+                return false;
             }
         }
-        return accessible;
-    }
-    
-    private void extractByCraine(char target) {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (existed[i][j] && target == inventory[i][j]) {
-                    System.out.println(target + " 컨테이너 제거" + i + " " + j + " ");
-                    totalCount--;
-                    existed[i][j] = false;
-                }
-            }
-        }
+        return true;
     }
 }
+
+/*
+1. 모든 후보 군을 만든다 (nC5)
+2. 각 후보에 대해 모든 시도를 검사한다.
+3. 시도 입력값과 후보가 겹치는 개수가 같으면 카운트
+4. 모든 카운트 출력
+*/
