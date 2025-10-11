@@ -16,7 +16,6 @@ class Solution {
                 }
                 if (c == 'X') {
                     countX++;
-                    continue;
                 }
             }
         }
