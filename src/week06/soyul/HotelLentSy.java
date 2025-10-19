@@ -1,4 +1,4 @@
-package week06;
+package week06.soyul;
 
 import java.util.Arrays;
 import java.util.PriorityQueue;
